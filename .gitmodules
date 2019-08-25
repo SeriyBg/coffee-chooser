@@ -1,0 +1,6 @@
+[submodule "coffee-chooser-ui"]
+	path = coffee-chooser-ui
+	url = git@github.com:SeriyBg/coffee-chooser-ui.git
+[submodule "coffee-chooser-service"]
+	path = coffee-chooser-service
+	url = git@github.com:SeriyBg/coffee-chooser-service.git

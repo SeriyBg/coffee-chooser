@@ -1,10 +1,16 @@
 #!/bin/bash -v
 
-export ISTIO_HOME="$(dirname ${ISTIO_PATH})";
-kubectl create namespace istio-system
-helm template ${ISTIO_HOME}/install/kubernetes/helm/istio-init --name istio-init --namespace istio-system | kubectl apply -f -
-sleep 2000; #waiting so the CRDs are created
-helm template ${ISTIO_HOME}/install/kubernetes/helm/istio --name istio --namespace istio-system \
-    --values ${ISTIO_HOME}/install/kubernetes/helm/istio/values-istio-demo.yaml | kubectl apply -f -
-kubectl label namespace default istio-injection=enabled;
-# kubectl -n istio-system get svc istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+istioctl install --set profile=demo;
+kubectl label namespace default istio-injection=enabled --overwrite=true;
+istioctl verify-install;
+
+# istall telemetry addons
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/grafana.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/jaeger.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/prometheus.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/kiali.yaml
+
+# install application
+kubectl apply -f $COFFEE_UI/coffee-ui.yaml;
+kubectl apply -f $COFFEE_SERVICE/kubernetes/coffee-service.yaml;
+kubectl apply -f $COFFEE_SERVICE/istio/gateway.yaml
